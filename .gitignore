@@ -1,0 +1,3 @@
+venv*
+my_bot/database_bot.db
+**/**/__pycache__
