@@ -3,38 +3,36 @@ import asyncio
 from aiogram import Bot, Dispatcher, html
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.filters import CommandStart
-from aiogram.types import Message
+
+from handlers.handlers_base import even_from_base
+from handlers.handlers_register import even_from_register
 
 
 TOKEN = ""
 
-dp = Dispatcher()
 
+async def on_startup_for_dp(dp: Dispatcher) -> None:
+    """
+    Регистрация обработчиков
 
-@dp.message(CommandStart())
-async def command_start_handler(message: Message) -> None:
-    first_name = message.from_user.first_name # type: ignore
-    last_name = message.from_user.last_name # type: ignore
-    await message.answer(
-        f"Hello, " \
-        f"{first_name if first_name else ''}" \
-        f"{' ' + last_name if last_name else ''}"
-    )
-
-
-@dp.message()
-async def echo_handler(message: Message) -> None:
-    # msm = message.text
-    await message.answer(message.text) # type: ignore
+    Args:
+        dp (Dispatcher): диспетчер
+    """
+    
+    await even_from_base(dp) # Базовый должен быть первым что бы работала отмена
+    await even_from_register(dp)
 
 
 async def main() -> None:
+    "Функция запуска"
+    
+    dp = Dispatcher()
     bot = Bot(
         token=TOKEN,
         default=DefaultBotProperties(parse_mode=ParseMode.HTML)
     )
-    
+
+    await on_startup_for_dp(dp)
     await dp.start_polling(bot)
 
 
