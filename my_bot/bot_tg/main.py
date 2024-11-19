@@ -8,7 +8,7 @@ from handlers.handlers_base import even_from_base
 from handlers.handlers_register import even_from_register
 
 
-TOKEN = ""
+TOKEN = "6105356535:AAHdG6IlfOZpY2k5WnUXaMHJlvjE4WDyoog"
 
 
 async def on_startup_for_dp(dp: Dispatcher) -> None:

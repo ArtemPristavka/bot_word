@@ -106,7 +106,7 @@ async def check_passwords(message: Message, state: FSMContext) -> None:
     
     else:
         response = requests.post(
-            url="http://127.0.0.1:8000/telegram/users/",
+            url="http://127.0.0.1:8000/telegram/users/", # TODO изменить на конфиг
             data={
                 "username": message.from_user.username, # type: ignore
                 "password": password_1,
@@ -116,7 +116,8 @@ async def check_passwords(message: Message, state: FSMContext) -> None:
         if response.status_code == 201:
             await state.clear()
             await message.answer(
-                "Все отлично, не забудь его!"
+                "Все отлично, не забудь его!" \
+                "Используй ник как логин."
             )
         
         else:

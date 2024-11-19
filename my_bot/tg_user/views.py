@@ -54,9 +54,9 @@ class HaveTelegramUser(APIView):
         """
         
         tg_user = self.get_object(tg_id)
-            
         reponse = {
             "username": tg_user.user.username, # type: ignore
+            "admin": tg_user.user.is_staff, # type: ignore
             "telegram_id": int(tg_user.telegram_id), # type: ignore
             "count_call": tg_user.count_call # type: ignore
         }
@@ -78,10 +78,10 @@ class HaveTelegramUser(APIView):
         Returns:
             Response: 
         """
+        
         tg_user: TelegramUser = self.get_object(tg_id) # type: ignore
         tg_user.count_call += 1
         tg_user.save()
-        
         reponse = {
             "username": tg_user.user.username, # type: ignore
             "telegram_id": int(tg_user.telegram_id), # type: ignore

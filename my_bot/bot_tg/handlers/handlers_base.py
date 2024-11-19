@@ -1,9 +1,14 @@
+import requests
+
 from aiogram import Dispatcher
 from aiogram.types import Message
 from aiogram.filters import CommandStart, Command
 from aiogram.fsm.context import FSMContext
 
-from all_keyboards.base_keyboard import key_for_start_register
+from all_keyboards.base_keyboard import (
+    key_for_start_register, key_for_start_task
+    )
+from request_class import CheckUser
 
 from final_state import FormRegisterFSM
 
@@ -20,17 +25,27 @@ async def command_start_handler(message: Message, state: FSMContext) -> None:
     first_name = message.from_user.first_name # type: ignore
     last_name = message.from_user.last_name # type: ignore
     
-    keyboard = await key_for_start_register()
-    await state.set_state(FormRegisterFSM.start_register) # Для регистрации
+    request_user = CheckUser(telegram_id=message.from_user.id) # type: ignore
     
-    await message.answer(
-        f"Привет, " \
-        f"{first_name if first_name else ''}" \
-        f"{' ' + last_name if last_name else ''}" \
-        f"\nЧто бы работать с тобой надо зарегистрироваться",
-        reply_markup=keyboard
-    )
-    # 5587203554 удалить
+    if request_user.have is False:
+        keyboard = await key_for_start_register()
+        await state.set_state(FormRegisterFSM.start_register) # Для регистрации
+        await message.answer(
+            f"Привет, " \
+            f"{first_name if first_name else ''}" \
+            f"{' ' + last_name if last_name else ''}" \
+            f"\nЧто бы работать с тобой надо зарегистрироваться",
+            reply_markup=keyboard
+        )
+    
+    elif request_user.have is True:
+        keyboard = await key_for_start_task(admin=request_user.admin) # type: ignore
+        await message.answer(
+            "Мы тебя помним",
+            reply_markup=keyboard
+        )
+            
+    # TODO 5587203554 удалить
     
     # TODO Придумать развитие для отказа пользователя
     
