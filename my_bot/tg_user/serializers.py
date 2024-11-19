@@ -6,6 +6,7 @@ from .models import TelegramUser
 
 
 class TelegramUserSerializer(serializers.Serializer):
+    
     username = serializers.CharField(max_length=150, min_length=4)
     telegram_id = serializers.CharField(max_length=100)
     password = serializers.CharField(max_length=150, min_length=8)

@@ -1,22 +1,33 @@
 from aiogram import Dispatcher
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
-
+from aiogram.filters import Command
 from final_state import FormRegisterFSM
-
+from request_class import User
+from all_requests import register_user
+from all_keyboards.base_keyboard import key_for_start_task
 import requests
 
 
 async def input_first_passowrd(message: Message, state: FSMContext) -> None:
     """
-    Обработчик для преложения ввести пароль
+    Обработчик для предложения ввести пароль
 
     Args:
         message (Message): Объект сообщения
         state (FSMContext): FormRegisterFSM
     """
+
+    user = User(telegram_id=message.from_user.id) # type: ignore
+    if user.have:
+        await message.answer(
+            "Мы тебя помним!\n" \
+            "Тебе не надо регистрироваться"
+        )
+        
+        return # Что бы дальше не проходило
     
-    await state.set_state(FormRegisterFSM.password_1)
+    await state.set_state(FormRegisterFSM.start_register)
     await message.answer(
         "Придумай и введи пароль.\n" \
         "Требования к паролю:\n" \
@@ -72,7 +83,7 @@ async def input_second_password(message: Message, state: FSMContext) -> None:
     result_check = await check_password(message.text) # type: ignore
     if result_check:
         await state.update_data(password_1=message.text)
-        await state.set_state(FormRegisterFSM.password_2)
+        await state.set_state(FormRegisterFSM.password)
         await message.answer(
             "Хорошо, введи пароль еще раз"
         )
@@ -98,33 +109,33 @@ async def check_passwords(message: Message, state: FSMContext) -> None:
     
     if password_1 != password_2:
         await state.update_data(password_1=None)
-        await state.set_state(FormRegisterFSM.password_1)
+        await state.set_state(FormRegisterFSM.start_register)
         await message.answer(
             "Пароли не совпадают. Начнем с начала.\n" \
             "Придумай пароль:"
         )
     
     else:
-        response = requests.post(
-            url="http://127.0.0.1:8000/telegram/users/", # TODO изменить на конфиг
-            data={
-                "username": message.from_user.username, # type: ignore
-                "password": password_1,
-                "telegram_id": message.from_user.id # type: ignore
-            }
+        result = register_user(
+            message.from_user.username, # type: ignore
+            password_1, # type: ignore
+            message.from_user.id # type: ignore
         )
-        if response.status_code == 201:
+        
+        if result:
+            keyboard = await key_for_start_task()
             await state.clear()
             await message.answer(
-                "Все отлично, не забудь его!" \
-                "Используй ник как логин."
+                "Все отлично, не забудь его!\n" \
+                "Используй ник как логин.",
+                reply_markup=keyboard
             )
         
-        else:
-            await state.set_state(FormRegisterFSM.password_1)
-            await message.answer(
-                "Что то пошло не так"
-            )
+        # else:
+        #     await state.set_state(FormRegisterFSM.start_register)
+        #     await message.answer(
+        #         "Что то пошло не так"
+        #     )
         
     
     
@@ -136,6 +147,6 @@ async def even_from_register(dp: Dispatcher) -> None:
         dp (Dispatcher): Dispatcher
     """
     
-    dp.message.register(input_first_passowrd, FormRegisterFSM.start_register)
-    dp.message.register(input_second_password, FormRegisterFSM.password_1)
-    dp.message.register(check_passwords, FormRegisterFSM.password_2)
+    dp.message.register(input_first_passowrd, Command("register"))
+    dp.message.register(input_second_password, FormRegisterFSM.start_register)
+    dp.message.register(check_passwords, FormRegisterFSM.password)

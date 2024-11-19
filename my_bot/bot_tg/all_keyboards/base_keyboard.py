@@ -1,12 +1,11 @@
-from aiogram.utils.keyboard import KeyboardBuilder, ButtonType, ReplyKeyboardBuilder
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 
 async def key_for_start_register() -> ReplyKeyboardMarkup:
+    # TODO дописать docstring
     buttons = [
         [
-            KeyboardButton(text="Регистриуемся"),
-            KeyboardButton(text="Нет, спасибо") 
+            KeyboardButton(text="/register"),
         ]
     ]
     keyboard = ReplyKeyboardMarkup(
@@ -18,14 +17,15 @@ async def key_for_start_register() -> ReplyKeyboardMarkup:
     return keyboard
 
 async def key_for_start_task(admin: bool = False) -> ReplyKeyboardMarkup:
+    # TODO дописать docstring
     buttons = [
         [
-            KeyboardButton(text="Подсчет слов")
+            KeyboardButton(text="/task")
         ]
     ]
     if admin:
         buttons[0].append(
-            KeyboardButton(text="Статистика")
+            KeyboardButton(text="/admin")
         )
         
     keyboard = ReplyKeyboardMarkup(

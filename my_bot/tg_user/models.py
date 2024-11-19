@@ -16,6 +16,14 @@ class TelegramUser(models.Model):
         unique=True,
         blank=False
     )
-    count_call = models.IntegerField(
-        default=0
+
+
+class CallTask(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="task"
+    )
+    date_call = models.DateTimeField(
+        auto_now_add=True
     )

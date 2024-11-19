@@ -6,5 +6,19 @@ class FormRegisterFSM(StatesGroup):
     "FSM для регистарции пользователя"
     
     start_register = State()
-    password_1 = State()
-    password_2 = State()
+    password = State()
+    
+    
+class FormTaskFSM(StatesGroup):
+    "FSM для выполнения подсчета слов"
+    
+    start_task = State()
+    
+    
+class FormAdminFSM(StatesGroup):
+    "FSM для действий администратора"
+    
+    choice_action = State()
+    choice_month = State()
+    choice_day = State()
+    

@@ -1,12 +1,14 @@
 from rest_framework.views import APIView
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.exceptions import NotFound, ValidationError
+from rest_framework.exceptions import NotFound
 from rest_framework import status
 
-from .models import TelegramUser
+from .models import TelegramUser, CallTask
 
 from .serializers import TelegramUserSerializer
+
+from datetime import date
 
 from typing import Literal
 
@@ -54,11 +56,14 @@ class HaveTelegramUser(APIView):
         """
         
         tg_user = self.get_object(tg_id)
+        
         reponse = {
             "username": tg_user.user.username, # type: ignore
             "admin": tg_user.user.is_staff, # type: ignore
             "telegram_id": int(tg_user.telegram_id), # type: ignore
-            "count_call": tg_user.count_call # type: ignore
+            "count_call":  CallTask.objects \
+                .filter(user=tg_user.user.pk) \
+                .count()# type: ignore
         }
         
         return Response(
@@ -67,7 +72,7 @@ class HaveTelegramUser(APIView):
         )
         
 
-    def put(self, request: Request, tg_id: int) -> Response:
+    def post(self, request: Request, tg_id: int) -> Response:
         """
         Для обновления кол-во обращений пользователя
 
@@ -80,17 +85,18 @@ class HaveTelegramUser(APIView):
         """
         
         tg_user: TelegramUser = self.get_object(tg_id) # type: ignore
-        tg_user.count_call += 1
-        tg_user.save()
+        CallTask.objects.create(user=tg_user.user)
         reponse = {
             "username": tg_user.user.username, # type: ignore
             "telegram_id": int(tg_user.telegram_id), # type: ignore
-            "count_call": tg_user.count_call # type: ignore
+            "count_call": CallTask.objects \
+                .filter(user=tg_user.user.pk) \
+                .count() # type: ignore
         }
         
         return Response(
             data=reponse,
-            status=status.HTTP_200_OK
+            status=status.HTTP_201_CREATED
         )
         
 
@@ -116,12 +122,67 @@ class CreateTelegramUser(APIView):
             
             return Response(
                 data={
-                    "username": serializer.data.get("username"),
-                    "telegram_id": int(serializer.data.get("telegram_id")),
-                    "count_call": serializer.data.get("count_call")
+                    "username": serializer.data.get("username"), # type: ignore
+                    "telegram_id": int(serializer.data.get("telegram_id")), # type: ignore
                 },
                 status=status.HTTP_201_CREATED
             )
         
         else:
-            raise ValidationError("Valid Error")
+            return Response(
+                data="User of have",
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+
+class CountCall(APIView):
+    
+    def get(self, request: Request, year: int, month: int, day: int) -> Response:
+        """
+        Подсчет кол-во запросов в определнную дату
+
+        Args:
+            request (Request):
+            year (int): 
+            month (int):
+            day (int):
+
+        Returns:
+            Response:
+        """
+        
+        search_date = date(year=year, month=month, day=day)
+        count_call = CallTask.objects.filter(date_call__date=search_date) \
+            .count()
+            
+        return Response(
+            data={
+                "count_call": count_call,
+            },
+            status=status.HTTP_200_OK
+        )
+        
+
+class MinDate(APIView):
+    
+    def get(self, request: Request) -> Response:
+        """
+        Поиск самой старой даты обращения пользователя
+
+        Args:
+            request (Request): 
+
+        Returns:
+            Response: 
+        """
+        
+        search = CallTask.objects.order_by("-date_call")[0]
+        
+        return Response(
+            data={
+                "year": search.date_call.year,
+                "month": search.date_call.month,
+                "day": search.date_call.day
+            },
+            status=status.HTTP_200_OK
+        )
