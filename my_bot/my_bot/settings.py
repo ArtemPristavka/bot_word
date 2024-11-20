@@ -76,10 +76,21 @@ WSGI_APPLICATION = 'my_bot.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'database_bot.db',
+#     }
+# }
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'database_bot.db',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "telegram",
+        "USER": "bot_telegram",
+        "PASSWORD": "qwerty",
+        "HOST": "127.0.0.1",
+        "PORT": "5432",
     }
 }
 

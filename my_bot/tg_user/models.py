@@ -22,6 +22,8 @@ class TelegramUser(models.Model):
 
 
 class CallTask(models.Model):
+    "Модель запросов пользователей из Telegram"
+    
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

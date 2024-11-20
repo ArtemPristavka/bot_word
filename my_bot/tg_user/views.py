@@ -30,7 +30,7 @@ class HaveTelegramUser(APIView):
             tg_user = TelegramUser.objects.select_related("user") \
                 .get(telegram_id=str(tg_id))
                 
-        except: # TODO Добавить/разобрать ошибку DoesNotExist
+        except TelegramUser.DoesNotExist:
             raise NotFound(
                 detail="Not exists user telegram id",
                 code=status.HTTP_404_NOT_FOUND

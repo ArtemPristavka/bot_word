@@ -8,9 +8,7 @@ from handlers.handlers_register import event_from_register
 from handlers.handlers_task import event_from_task
 from handlers.handlers_admin import event_for_admin
 from handlers.pay import event_from_pay
-
-
-TOKEN = "6105356535:AAHdG6IlfOZpY2k5WnUXaMHJlvjE4WDyoog"
+from config import TOKEN_BOT
 
 
 async def on_startup_for_dp(dp: Dispatcher) -> None:
@@ -52,7 +50,7 @@ async def main() -> None:
     
     dp = Dispatcher()
     bot = Bot(
-        token=TOKEN,
+        token=TOKEN_BOT,
         default=DefaultBotProperties(parse_mode=ParseMode.HTML)
     )
     

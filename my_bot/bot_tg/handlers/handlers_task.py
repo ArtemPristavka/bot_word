@@ -4,12 +4,23 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from final_state import FormTaskFSM
 from request_class import User
+from config import MAX_FREE_CALL
 from all_keyboards.task_keyboard import key_for_choice_action
 from all_keyboards.base_keyboard import key_for_start_register, key_for_start_pay
 import collections
 
 
 async def handeler_start_task(message: Message, state: FSMContext) -> None:
+    """
+    Старторвый обработчик для решения задач от пользователей
+
+    Args:
+        message (Message): 
+        state (FSMContext): FormTaskFSM
+
+    Returns:
+        _type_: _description_
+    """
     user = User(telegram_id=message.from_user.id) # type: ignore
     if not user.have:
         keyboard = await key_for_start_register()
@@ -22,15 +33,13 @@ async def handeler_start_task(message: Message, state: FSMContext) -> None:
     
     if not user.admin:
         if not user.subscription:
-            if user.count_call > 5: # type: ignore
+            if user.count_call > MAX_FREE_CALL: # type: ignore
                 keyboard = await key_for_start_pay()
                 await message.answer(
                     "Бесплатные попытки закончились!\n" \
                     "Надо оформить подписку",
                     reply_markup=keyboard
                 )
-            # TODO кол-во бесплатных запросов можно вынеси в конфиг
-            # TODO сделать перенаправление на оплату подписки
             
                 return # Что бы дальше не проходило
     

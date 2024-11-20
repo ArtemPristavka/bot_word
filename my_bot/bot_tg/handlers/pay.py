@@ -1,10 +1,20 @@
 from aiogram import Bot, Dispatcher, F
-from aiogram.types import Message, LabeledPrice, PreCheckoutQuery, SuccessfulPayment, ContentType
+from aiogram.types import Message, LabeledPrice, PreCheckoutQuery
 from aiogram.filters import Command
 from request_class import User
+from config import PROVIDER_TOKE
 
 
 async def order_buy_subscription(message: Message, bot: Bot) -> None:
+    """
+    Обработчик старта оплаты.
+    Проверяет пользователя на админку и подписку.
+
+    Args:
+        message (Message): 
+        bot (Bot): 
+    """
+    
     user = User(telegram_id=message.from_user.id) # type: ignore
     if user.admin:
         await message.answer(
@@ -21,8 +31,7 @@ async def order_buy_subscription(message: Message, bot: Bot) -> None:
             prices=[
                 LabeledPrice(label="Подписка", amount=500_00)
             ],
-            provider_token="401643678:TEST:f71883a3-d95e-4d2d-b644-1f978fe638f6",
-            # TODO Токен вынести в конфиг,
+            provider_token=PROVIDER_TOKE, # В config 
             start_parameter="MovieBbot",
             disable_notification=False,
             protect_content=True
@@ -35,6 +44,14 @@ async def order_buy_subscription(message: Message, bot: Bot) -> None:
 
 
 async def pre_checkout_query(pre_checkout_query: PreCheckoutQuery, bot: Bot) -> None:
+    """
+    Обработчик подтверждения что бот готов предоставить продукт
+
+    Args:
+        pre_checkout_query (PreCheckoutQuery): 
+        bot (Bot): 
+    """
+    
     await bot.answer_pre_checkout_query(
         pre_checkout_query_id=pre_checkout_query.id,
         ok=True
@@ -42,9 +59,16 @@ async def pre_checkout_query(pre_checkout_query: PreCheckoutQuery, bot: Bot) -> 
     
 
 async def successful_payment(message: Message) -> None:
+    """
+    Обработчк успешной оплаты.
+    Оформление подписки для пользователя
+
+    Args:
+        message (Message): 
+    """
+    
     user = User(telegram_id=message.from_user.id) # type: ignore
     if user.send_subscription():
-        # message.successful_payment
         await message.answer(
             text="Подписка оформлена"
         )
@@ -56,6 +80,13 @@ async def successful_payment(message: Message) -> None:
  
  
 async def event_from_pay(dp: Dispatcher) -> None:
-     dp.message.register(order_buy_subscription, Command("pay"))
-     dp.pre_checkout_query.register(pre_checkout_query)
-     dp.message.register(successful_payment, F.successful_payment)
+    """
+    Регистрация обработчик собый оплаты для диспетчера
+
+    Args:
+        dp (Dispatcher): 
+    """
+    
+    dp.message.register(order_buy_subscription, Command("pay"))
+    dp.pre_checkout_query.register(pre_checkout_query)
+    dp.message.register(successful_payment, F.successful_payment)
