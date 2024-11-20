@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 from final_state import FormTaskFSM
 from request_class import User
 from all_keyboards.task_keyboard import key_for_choice_action
-from all_keyboards.base_keyboard import key_for_start_register
+from all_keyboards.base_keyboard import key_for_start_register, key_for_start_pay
 import collections
 
 
@@ -20,15 +20,19 @@ async def handeler_start_task(message: Message, state: FSMContext) -> None:
         
         return # Что б дальше не проходило
     
-    if user.count_call > 5: # type: ignore
-        await message.answer(
-            "Бесплатные попытки закончились!\n" \
-            "Надо оформить подписку"
-        )
-        # TODO кол-во бесплатных запросов можно вынеси в конфиг
-        # TODO сделать перенаправление на оплату подписки
-        
-        return # Что бы дальше не проходило
+    if not user.admin:
+        if not user.subscription:
+            if user.count_call > 5: # type: ignore
+                keyboard = await key_for_start_pay()
+                await message.answer(
+                    "Бесплатные попытки закончились!\n" \
+                    "Надо оформить подписку",
+                    reply_markup=keyboard
+                )
+            # TODO кол-во бесплатных запросов можно вынеси в конфиг
+            # TODO сделать перенаправление на оплату подписки
+            
+                return # Что бы дальше не проходило
     
     await state.set_state(FormTaskFSM.start_task)
     await message.answer(
@@ -66,7 +70,7 @@ async def handler_count_word_from_sentence(message: Message, state: FSMContext) 
     )
     
     
-async def even_from_task(dp: Dispatcher) -> None:
+async def event_from_task(dp: Dispatcher) -> None:
     """
     Регистрация обработчиков событий задачи для диспетчера
 

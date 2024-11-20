@@ -16,6 +16,9 @@ class TelegramUser(models.Model):
         unique=True,
         blank=False
     )
+    subscription = models.BooleanField(
+        default=False
+    )
 
 
 class CallTask(models.Model):

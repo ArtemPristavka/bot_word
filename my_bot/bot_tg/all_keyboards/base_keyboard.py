@@ -2,7 +2,8 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 
 async def key_for_start_register() -> ReplyKeyboardMarkup:
-    # TODO дописать docstring
+    "Клавиатура для регистрации"
+    
     buttons = [
         [
             KeyboardButton(text="/register"),
@@ -17,7 +18,17 @@ async def key_for_start_register() -> ReplyKeyboardMarkup:
     return keyboard
 
 async def key_for_start_task(admin: bool = False) -> ReplyKeyboardMarkup:
-    # TODO дописать docstring
+    """
+    Клавиатура для выбора действий пользователя
+
+    Args:
+        admin (bool, optional): Являеться ли этот пользователь администратором. 
+            Defaults to False.
+
+    Returns:
+        ReplyKeyboardMarkup: 
+    """
+    
     buttons = [
         [
             KeyboardButton(text="/task")
@@ -30,6 +41,22 @@ async def key_for_start_task(admin: bool = False) -> ReplyKeyboardMarkup:
         
     keyboard = ReplyKeyboardMarkup(
         keyboard=buttons,
+        resize_keyboard=True,
+        one_time_keyboard=True
+    )
+    
+    return keyboard
+
+
+async def key_for_start_pay() -> ReplyKeyboardMarkup:
+    "Клавиатура для оплаты"
+    
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=[
+            [
+                KeyboardButton(text="/pay")
+            ]
+        ],
         resize_keyboard=True,
         one_time_keyboard=True
     )

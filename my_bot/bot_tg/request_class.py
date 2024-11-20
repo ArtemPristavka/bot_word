@@ -8,6 +8,7 @@ class User:
     _admin = None
     _username = None
     _count_call = None
+    _subscription = None
     
     def __init__(self, telegram_id: int) -> None:
         self._telegram_id = telegram_id
@@ -16,18 +17,19 @@ class User:
     def request_user(self) -> None:
         "Проверяем есть ли такой пользователь в системе"
         
-        check_user = requests.get(
+        user = requests.get(
             f"http://127.0.0.1:8000/telegram/users/{self.telegram_id}/"
             )
         
-        if check_user.status_code == 200:
-            self._have = True
-            self._admin = check_user.json()["admin"]
-            self._username = check_user.json()["username"]
-            self._count_call = check_user.json()["count_call"]
+        if user.status_code == 200:
+            self.have = True
+            self.admin = user.json()["admin"]
+            self.username = user.json()["username"]
+            self.count_call = user.json()["count_call"]
+            self.subscription = user.json()["subscription"]
             
-        elif check_user.status_code == 404:
-            self._have = False
+        elif user.status_code == 404:
+            self.have = False
             
     def send_call(self) -> None:
         "Сообщаем системе что пользователь воспользовался задачей"
@@ -36,14 +38,39 @@ class User:
             f"http://127.0.0.1:8000/telegram/users/{self.telegram_id}/"
         )
         if send.status_code == 201:
-            self._count_call = send.json()["count_call"]
+            self.count_call = send.json()["count_call"]
+            
+    def send_subscription(self) -> bool | None:
+        "Отправляем подписку"
+        
+        request = requests.post(
+            f"http://127.0.0.1:8000/telegram/users/subscription/{self._telegram_id}/"
+        )
+        if request.status_code == 201:
+            self._subscription = True
+        
+        else:
+            self._subscription = False
+        
+        return self.subscription
     
+    @property
+    def subscription(self) -> bool | None:
+        return self._subscription
+    
+    @subscription.setter
+    def subscription(self, value) -> None:
+        self._subscription = value
     
     @property
     def count_call(self) -> int | None:
         "Кол-во обращей пользователя"
         
         return self._count_call
+    
+    @count_call.setter
+    def count_call(self, value) -> None:
+        self._count_call = value
     
     @property
     def have(self) -> bool:

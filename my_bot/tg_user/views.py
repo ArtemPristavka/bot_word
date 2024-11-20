@@ -3,13 +3,9 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from rest_framework import status
-
 from .models import TelegramUser, CallTask
-
 from .serializers import TelegramUserSerializer
-
 from datetime import date
-
 from typing import Literal
 
 
@@ -61,6 +57,7 @@ class HaveTelegramUser(APIView):
             "username": tg_user.user.username, # type: ignore
             "admin": tg_user.user.is_staff, # type: ignore
             "telegram_id": int(tg_user.telegram_id), # type: ignore
+            "subscription": tg_user.subscription, # type: ignore
             "count_call":  CallTask.objects \
                 .filter(user=tg_user.user.pk) \
                 .count()# type: ignore
@@ -133,7 +130,7 @@ class CreateTelegramUser(APIView):
                 data="User of have",
                 status=status.HTTP_400_BAD_REQUEST
             )
-            
+    
 
 class CountCall(APIView):
     
@@ -176,7 +173,7 @@ class MinDate(APIView):
             Response: 
         """
         
-        search = CallTask.objects.order_by("-date_call")[0]
+        search = CallTask.objects.order_by("date_call")[0]
         
         return Response(
             data={
@@ -185,4 +182,28 @@ class MinDate(APIView):
                 "day": search.date_call.day
             },
             status=status.HTTP_200_OK
+        )
+
+
+class UpdateSubscription(APIView):
+    
+    def post(self, request: Request, tg_id: int) -> Response:
+        """
+        Оформление подписки на бота
+
+        Args:
+            request (Request): 
+            tg_id (int): Id пользователя Telegram
+
+        Returns:
+            Response: 
+        """
+        
+        user = TelegramUser.objects.get(telegram_id=tg_id)
+        user.subscription = True
+        user.save()
+        
+        return Response(
+            data="Made subscription",
+            status=status.HTTP_201_CREATED
         )

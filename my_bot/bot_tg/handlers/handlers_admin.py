@@ -70,13 +70,12 @@ async def choice_action(callback: CallbackQuery, state: FSMContext) -> None:
     
     # Для возврата со слайда статистики
     elif callback.data == "back":
-        month = await state.get_value("mouth")
-        day = await state.get_value("day")
+        data = await state.get_data()
         
         keyboard = await key_action_admin()
         await callback.message.edit_text( # type: ignore
             text="Админь панель\n" \
-                f"Выбранная дата: месяц: {month} | день: {day} ",
+                f"Выбранная дата: месяц: {data['month']} | день: {data['day']} ",
             reply_markup=keyboard
         )
 
@@ -121,7 +120,7 @@ async def save_data_day(callback: CallbackQuery, state: FSMContext) -> None:
     )
     
     
-async def even_for_admin(dp: Dispatcher) -> None:
+async def event_for_admin(dp: Dispatcher) -> None:
     """
     Регистрация событий администратора для диспетчера
 

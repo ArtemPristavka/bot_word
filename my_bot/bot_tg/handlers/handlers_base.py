@@ -59,7 +59,7 @@ async def command_cancel_handler(message: Message, state: FSMContext) -> None:
     )
 
     
-async def even_from_base(dp: Dispatcher) -> None:
+async def event_from_base(dp: Dispatcher) -> None:
     """
     Регистрация базовых обработчиков событий для диспетчера
 

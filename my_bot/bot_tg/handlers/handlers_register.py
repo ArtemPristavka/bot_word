@@ -139,7 +139,7 @@ async def check_passwords(message: Message, state: FSMContext) -> None:
         
     
     
-async def even_from_register(dp: Dispatcher) -> None:
+async def event_from_register(dp: Dispatcher) -> None:
     """
     Регистрация обработчиков событий для диспетчера
 
