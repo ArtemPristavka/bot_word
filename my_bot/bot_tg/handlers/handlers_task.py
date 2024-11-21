@@ -63,9 +63,11 @@ async def handler_count_word_from_sentence(message: Message, state: FSMContext) 
     user = User(telegram_id=message.from_user.id) # type: ignore
     user.send_call()
     
+    # Очистка текста от различных знаков 
     clear_text: str = re.sub("[^\sA-Za-zА-Яа-я]", " ", message.text) # type: ignore
     clear_text: str = re.sub("\s+", " ", clear_text)
     split_text: List[str] = clear_text.lower().split() # type: ignore
+    
     counting_words = collections.Counter(split_text)
     # TODO добавить убывающию сортировку, что бы от большего повторения слов к меньшему
     futury_msg = [
