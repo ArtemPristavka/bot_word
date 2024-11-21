@@ -7,7 +7,9 @@ from request_class import User
 from config import MAX_FREE_CALL
 from all_keyboards.task_keyboard import key_for_choice_action
 from all_keyboards.base_keyboard import key_for_start_register, key_for_start_pay
+from typing import List
 import collections
+import re
 
 
 async def handeler_start_task(message: Message, state: FSMContext) -> None:
@@ -61,11 +63,13 @@ async def handler_count_word_from_sentence(message: Message, state: FSMContext) 
     user = User(telegram_id=message.from_user.id) # type: ignore
     user.send_call()
     
-    # TODO добавить регулярку на знаки, что бы очистить предложение от них
-    split_text = message.text.split() # type: ignore
+    clear_text: str = re.sub("[^\sA-Za-zА-Яа-я]", " ", message.text) # type: ignore
+    clear_text: str = re.sub("\s+", " ", clear_text)
+    split_text: List[str] = clear_text.lower().split() # type: ignore
     counting_words = collections.Counter(split_text)
+    # TODO добавить убывающию сортировку, что бы от большего повторения слов к меньшему
     futury_msg = [
-        f"{i_word} --> {i_count}"
+        f"{i_word} ---> {i_count}"
         for i_word, i_count in counting_words.items()
     ]
     msg_answer = "\n".join(futury_msg)
